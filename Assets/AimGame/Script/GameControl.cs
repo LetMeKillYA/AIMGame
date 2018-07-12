@@ -235,7 +235,19 @@ public class GameControl : MonoBehaviour
 
         playerInputObj.NextSet();
         ActivateTargetObects();
+        
+        DeactivateMe();
+    }
+
+    void DeactivateMe()
+    {
+        if (MenuManager.GetInstance().modularNo >= 0 && MenuManager.GetInstance().modularNo % 4 == 0)
+        {
+            if((Application.platform == RuntimePlatform.Android || Application.platform == RuntimePlatform.IPhonePlayer))
+                gameObject.SetActive(false);
+        }
         MenuManager.GetInstance().modularNo++;
+
     }
 
     public void CallNextSet()
