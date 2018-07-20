@@ -10,6 +10,7 @@ public class TargetBlock
     public Vector3    targetScale;
     public float      targetRange;
     public bool       isTarget;
+    public bool       hasBlocker;
     public Target     myTarget;
    
 
@@ -27,8 +28,19 @@ public class TargetBlock
         targetScale    = myTarget.transform.lossyScale;
         isTarget       = myTarget.isValid;
         targetRange    = myTarget.radius;
+        hasBlocker     = myTarget.isblocked;
         return JsonUtility.ToJson(this);
     }
 
+    public string SaveLocalTOString()
+    {
+        targetPosition = myTarget.transform.localPosition;
+        targetRotation = myTarget.transform.localEulerAngles;
+        targetScale = myTarget.transform.lossyScale;
+        isTarget = myTarget.isValid;
+        targetRange = myTarget.radius;
+        hasBlocker = myTarget.isblocked;
+        return JsonUtility.ToJson(this);
+    }
    
 }

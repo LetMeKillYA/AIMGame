@@ -29,6 +29,7 @@ public class GameControl : MonoBehaviour
     public PlayerInputController[] controllers;
     public Vector2 multipler;
     public int clickError = 0;
+    public AugmentedImageController arController;
 
     private float timer;
     Dictionary<string, object> timeTaken = new Dictionary<string, object>();
@@ -112,9 +113,10 @@ public class GameControl : MonoBehaviour
         arr[i] = temp;
     }
 
+    bool firstTime = true;
     void OnEnable()
     {
-        EventManager.OnSetComplete += LoadNextSet;
+       EventManager.OnSetComplete += LoadNextSet;
     }
 
     private void OnDisable()
@@ -225,7 +227,12 @@ public class GameControl : MonoBehaviour
         {
             
             setObjects[setNo].SetActive(true);
+            //setObjects[setNo].Initiate();
             timer = 0;
+            playerInputObj.NextSet();
+            //ActivateTargetObects();
+
+            DeactivateMe();
         }
         else
         {
@@ -233,26 +240,29 @@ public class GameControl : MonoBehaviour
             MenuManager.GetInstance().ShowGameOver();
         }
 
-        playerInputObj.NextSet();
-        ActivateTargetObects();
-        
-        DeactivateMe();
+      
     }
 
-    void DeactivateMe()
+    public void DeactivateMe()
     {
-        if (MenuManager.GetInstance().modularNo >= 0 && MenuManager.GetInstance().modularNo % 4 == 0)
+        if (MenuManager.GetInstance().modularNo >= 0)
         {
             if((Application.platform == RuntimePlatform.Android || Application.platform == RuntimePlatform.IPhonePlayer))
+            {
+                gameObject.transform.parent = null;
                 gameObject.SetActive(false);
+                arController.DeleteAnchor();
+            }
+               
         }
-        MenuManager.GetInstance().modularNo++;
+       
 
     }
 
-    public void CallNextSet()
+    public void CallNextSet(bool reduce = false)
     {
-        setObjects[setNo].ReduceTargetNo();
+        if(reduce)
+            setObjects[setNo].ReduceTargetNo();
         playerInputObj.NextSet();
                 
     }
@@ -282,7 +292,7 @@ public class GameControl : MonoBehaviour
 
     public void RotateArrow()
     {
-        if (setNo == 5)
+        if (setNo > 5)
             return;
         else if (setNo < 0)
             setNo = 5;

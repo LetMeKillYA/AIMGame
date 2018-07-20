@@ -43,6 +43,11 @@ public class AugmentedImageController : MonoBehaviour
             return;
         }
 
+        int round = MenuManager.GetInstance().modularNo;
+
+        
+
+        
 
         //debug.text = " " + Session.Status+"/"+anchor;
         // Get updated augmented images for this frame.
@@ -52,43 +57,80 @@ public class AugmentedImageController : MonoBehaviour
         // have a visualizer. Remove visualizers for stopped images.
         foreach (var image in m_TempAugmentedImages)
         {
-            if (image.Name == "Earth")
-            {
-               
-                //Debug.Log(image.TrackingState + "/" + AugmentedPrefab.activeSelf);
-            }
-                
-            if (image.TrackingState == TrackingState.Tracking && anchor == null)
-            {
-                AugmentedPrefab.SetActive(true);
-                anchor = image.CreateAnchor(image.CenterPose);
-                AugmentedPrefab.transform.parent = anchor.transform;
-                FitToScanOverlay.SetActive(false);
-                //if(GameControl.GetInstance().aimAssistType != AssistType.BaseTest)
-                StartCoroutine("ResetUIColliders");
-                Debug.Log("In create Anchor *****************");
-            }
-            else if (image.TrackingState == TrackingState.Paused && anchor!=null)
-            {
-                AugmentedPrefab.transform.parent = null;
-                AugmentedPrefab.SetActive(false);
-                FitToScanOverlay.SetActive(true);
-                anchor = null;
 
-                Debug.Log("In destroy Anchor *****************");
+            if(anchor == null)
+            {
+                /*if (round > 0 && round % 4 <= 2)
+                {
+                    if (image.Name != "Mars")
+                        return;
+                }
+                if (round > 0 && round % 4 > 2)
+                {
+                    if (image.Name != "Earth")
+                        return;
+                }*/
+                
+                if (image.TrackingState == TrackingState.Tracking)
+                {
+                    AugmentedPrefab.SetActive(true);
+                    anchor = image.CreateAnchor(image.CenterPose);
+                    AugmentedPrefab.transform.parent = anchor.transform;
+                    AugmentedPrefab.transform.localPosition = image.CenterPose.position;
+                    FitToScanOverlay.SetActive(false);
+                    //if(GameControl.GetInstance().aimAssistType != AssistType.BaseTest)
+                    StartCoroutine("ResetUIColliders");
+                    Debug.Log("In create Anchor *****************");
+                }
             }
-            else if(image.TrackingState == TrackingState.Tracking && GameControl.GetInstance() != null && !GameControl.GetInstance().IsActive())
+            else
+            {
+                if (image.TrackingState == TrackingState.Paused)
+                {
+                    AugmentedPrefab.transform.parent = null;
+                    AugmentedPrefab.SetActive(false);
+                   // FitToScanOverlay.SetActive(true);
+                    DeleteAnchor();
+
+                    Debug.Log("In destroy Anchor *****************");
+                }
+
+                /*if (round > 0 && round % 4 <= 2)
+                {
+                    if (image.Name != "Mars")
+                        return;
+                }
+                if (round > 0 && round % 4 > 2)
+                {
+                    if (image.Name != "Earth")
+                        return;
+                }
+
+                AugmentedPrefab.transform.localPosition = image.CenterPose.position;*/
+            }
+            
+
+            if (image.TrackingState != TrackingState.Tracking && (GameControl.GetInstance() != null && !GameControl.GetInstance().IsActive()))
             {
                 AugmentedPrefab.transform.parent = null;
                 AugmentedPrefab.SetActive(false);
-                FitToScanOverlay.SetActive(true);
-                anchor = null;
+                //FitToScanOverlay.SetActive(true);
+                DeleteAnchor();
                 Debug.Log("In destroy Anchor *****************");
             }
             
         }
-                
+
        
+
+    }
+
+    public void DeleteAnchor()
+    {
+        if(anchor != null)
+            Destroy(anchor.gameObject);
+        anchor = null;
+        FitToScanOverlay.SetActive(true);
     }
 
     IEnumerator ResetUIColliders()
@@ -97,7 +139,7 @@ public class AugmentedImageController : MonoBehaviour
 
         TouchObjPool.GetInstance().ResetTargets();
         MenuManager.GetInstance().PurgeRound();
-        GameControl.GetInstance().CallNextSet();
+        //GameControl.GetInstance().CallNextSet(true);
         GameControl.GetInstance().ActivateTargetObects();
     }
 }

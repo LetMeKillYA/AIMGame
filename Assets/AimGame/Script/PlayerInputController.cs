@@ -385,7 +385,7 @@ public class PlayerInputController : MonoBehaviour
     {
         if (temp.Count > 0)
         {
-            contactCount = TouchObjPool.GetInstance().CheckForContact(bubbleRect);
+            contactCount = TouchObjPool.GetInstance().CheckForContact(bubbleRect,true);
         }
 
         tempSize = bubbleRect.sizeDelta;
@@ -546,7 +546,7 @@ public class PlayerInputController : MonoBehaviour
 
                 Target targetObj = fireHit.collider.gameObject.GetComponent<Target>();
 
-                if (targetObj != null)
+                if (targetObj != null && targetObj.CanHit)
                 {
                     targetObj.OnHit();
                     TargetHit();
@@ -576,7 +576,7 @@ public class PlayerInputController : MonoBehaviour
 
             Target targetObj = fireHit.collider.gameObject.GetComponent<Target>();
 
-            if (targetObj != null)
+            if (targetObj != null && targetObj.CanHit)
             {
                 targetObj.OnHit();
                 TargetHit();

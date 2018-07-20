@@ -58,6 +58,7 @@ public class LevelManager : MonoBehaviour
        
         GameControl.GetInstance().GetTargetList(targets);
         MenuManager.GetInstance().ResetUIColliders();
+       
     }
 
   
@@ -140,15 +141,16 @@ public class LevelManager : MonoBehaviour
 
         for(int i =0;i< targets.Count;i++)
         {
-            targets[i].transform.localScale = blockList[i].targetScale;
-            targets[i].transform.position   = blockList[i].targetPosition;
-            targets[i].transform.rotation   = Quaternion.Euler(blockList[i].targetRotation);
-            targets[i].isValid              = blockList[i].isTarget;
-            targets[i].radius               = blockList[i].targetRange;
-            targets[i].transform.parent     = transform;
+            targets[i].transform.parent          = transform;
+            targets[i].transform.localScale      = blockList[i].targetScale;
+            targets[i].transform.localPosition   = blockList[i].targetPosition;
+            targets[i].transform.localRotation   = Quaternion.Euler(blockList[i].targetRotation);
+            targets[i].isValid                   = blockList[i].isTarget;
+            targets[i].radius                    = blockList[i].targetRange;
+            targets[i].blocker.SetActive(blockList[i].hasBlocker);
             
         }
-
+        ShuffleList(targets);
         reader.Close();
     }
 
@@ -157,14 +159,23 @@ public class LevelManager : MonoBehaviour
         return JsonUtility.FromJson<TargetBlock>(jsonString);
     }
 
+    public void Initiate()
+    {
+        SetTargets();
+        //For Testing
+        NextTarget();
+        
+        previousTarget = null;
+
+        GameControl.GetInstance().ActivateTargetObects();
+        
+    }
+
     void OnEnable()
     {
         EventManager.OnTargetHit += NextTarget;
 
-        SetTargets();
-        //For Testing
-        NextTarget();
-        previousTarget = null;
+        Initiate();
     }
 
     private void OnDisable()
@@ -290,11 +301,15 @@ public class LevelManager : MonoBehaviour
 #if UNITY_EDITOR
         if (targetNo > targets.Count)
         {
+            MenuManager.GetInstance().modularNo++;
+            targetNo = 0;
             EventManager.CallSetComplete();
         }
 #else
         if (targetNo > targets.Count)
         {
+            MenuManager.GetInstance().modularNo++;
+            targetNo = 0;
             EventManager.CallSetComplete();
         }
 #endif

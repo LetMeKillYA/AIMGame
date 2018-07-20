@@ -73,7 +73,7 @@ public class TouchObjects : MonoBehaviour
 
     public bool CheckTouch()
     {
-        if (followObject == null)
+        if (followObject == null || !followObject.CanHit)
             return false;
 
         realRect = followObject.RealRect();
@@ -94,9 +94,12 @@ public class TouchObjects : MonoBehaviour
 
     Rect tempRect  = new Rect();
     float supressor;
-    public bool CheckHit(RectTransform inRect)
+    public bool CheckHit(RectTransform inRect,bool isbubble)
     {
         if (!gameObject.activeSelf || followObject == null)
+            return false;
+
+        if (!isbubble && !followObject.CanHit)
             return false;
 
         if(GameControl.GetInstance().aimAssistType != AssistType.Bubble)

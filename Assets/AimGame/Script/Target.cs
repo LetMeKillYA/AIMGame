@@ -10,11 +10,13 @@ public class Target : MonoBehaviour
     private Animator myAnimator;
    
     public GameObject sphere;
+    public GameObject blocker;
     [SerializeField]
     protected Material[] colorChange;
     private Renderer myRenderer;
     public bool CanHit { get { return canHit; }  set {canHit = value; } }
     public bool isValid = true;
+    public bool isblocked = false;
     public TargetBlock myBlock;
     private float speed = 0.5f;
     // Use this for initialization
@@ -56,7 +58,7 @@ public class Target : MonoBehaviour
             float dist = Vector3.Distance(startPos, curPos) ;
             if (dist > radius)
             {
-                transform.Rotate(Vector3.forward, Random.Range(30,100));
+                transform.Rotate(Vector3.forward, Random.Range(-45,45));
                 speed *= -1;
             }
 

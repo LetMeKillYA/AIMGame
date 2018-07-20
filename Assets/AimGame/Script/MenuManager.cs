@@ -21,7 +21,7 @@ public class MenuManager : MonoBehaviour
     public GameObject crossHair;
     public GameObject ArCamera;
     public int playerId = -1;
-    public int modularNo = -5;
+    public int modularNo = 0;
 
     private ExpData dataRecord;
 
@@ -187,6 +187,8 @@ public class MenuManager : MonoBehaviour
             return;
         if(inValue)
             dataRecord.ConvertToJasonAndSave();
+     
+           
         //AudioManager.GetInstance().PlaySound(2);
         infoUI.SetVisible(inValue);
         GameControl.GetInstance().stopMovement = inValue;

@@ -43,12 +43,12 @@ public class TouchObjPool : MonoBehaviour
         }
     }
 
-    public int CheckForContact(RectTransform inRect)
+    public int CheckForContact(RectTransform inRect,bool bubble = false)
     {
         int no = 0;
         foreach (TouchObjects obj in objList)
         {
-            if (obj.CheckHit(inRect))
+            if (obj.CheckHit(inRect,bubble))
             {
                 no++;
                // Debug.Log(obj.name);
@@ -90,12 +90,12 @@ public class TouchObjPool : MonoBehaviour
         return no;
     }
 
-    public TouchObjects GetChosen(RectTransform inRect)
+    public TouchObjects GetChosen(RectTransform inRect,bool isBubble = false)
     {
         TouchObjects result = null;
         foreach (TouchObjects obj in objList)
         {
-            if (obj.CheckHit(inRect))
+            if (obj.CheckHit(inRect, isBubble))
             {
                 result = obj;
             }

@@ -27,9 +27,9 @@ public class InfoUI : MonoBehaviour
         else if (round % 4 == 1)
             supportTxt = ": Stationary";
         else if (round % 4 == 2)
-            supportTxt = ": UI";
-        else if (round % 4 == 3)
             supportTxt = ": Moving";
+        else if (round % 4 == 3)
+            supportTxt = ": UI";
 
         if (round < 0)
         {

@@ -21,9 +21,11 @@
 namespace GoogleARCore.Examples.HelloAR
 {
     using System.Collections.Generic;
+    using System.IO;
     using GoogleARCore;
     using GoogleARCore.Examples.Common;
     using UnityEngine;
+    using UnityEngine.UI;
 
 #if UNITY_EDITOR
     // Set up touch input propagation while using Instant Preview in the editor.
@@ -50,11 +52,18 @@ namespace GoogleARCore.Examples.HelloAR
         /// </summary>
         public GameObject AndyAndroidPrefab;
 
+        //Custom for the level editor
+        public GameObject TargetPrefabs;
+        public InputField LevelName;
+        public InputField Size;
+        GameObject dandy;
         /// <summary>
         /// A gameobject parenting UI for displaying the "searching for planes" snackbar.
         /// </summary>
+        /// 
         public GameObject SearchingForPlaneUI;
-
+     
+       
         /// <summary>
         /// The rotation in degrees need to apply to model when the Andy model is placed.
         /// </summary>
@@ -74,6 +83,8 @@ namespace GoogleARCore.Examples.HelloAR
         /// <summary>
         /// The Unity Update() method.
         /// </summary>
+        ///
+        bool firstTime = true;
         public void Update()
         {
             _UpdateApplicationLifecycle();
@@ -117,17 +128,42 @@ namespace GoogleARCore.Examples.HelloAR
                 else
                 {
                     // Instantiate Andy model at the hit pose.
-                    var andyObject = Instantiate(AndyAndroidPrefab, hit.Pose.position, hit.Pose.rotation);
+                    GameObject andyObject = null;
 
-                    // Compensate for the hitPose rotation facing away from the raycast (i.e. camera).
-                    andyObject.transform.Rotate(0, k_ModelRotation, 0, Space.Self);
 
-                    // Create an anchor to allow ARCore to track the hitpoint as understanding of the physical
-                    // world evolves.
-                    var anchor = hit.Trackable.CreateAnchor(hit.Pose);
+                    if (firstTime)
+                    {
+                        andyObject = Instantiate(AndyAndroidPrefab, hit.Pose.position, hit.Pose.rotation);
 
-                    // Make Andy model a child of the anchor.
-                    andyObject.transform.parent = anchor.transform;
+                        andyObject.transform.localScale = new Vector3(0.25f, 0.25f, 0.25f);
+
+                        // Compensate for the hitPose rotation facing away from the raycast (i.e. camera).
+                        andyObject.transform.Rotate(0, k_ModelRotation, 0, Space.Self);
+
+                        // Create an anchor to allow ARCore to track the hitpoint as understanding of the physical
+                        // world evolves.
+                        var anchor = hit.Trackable.CreateAnchor(hit.Pose);
+
+                        // Make Andy model a child of the anchor.
+                        andyObject.transform.parent = anchor.transform;
+
+                        firstTime  = false;
+                    }
+                    else
+                    {
+                        dandy = Instantiate(TargetPrefabs, hit.Pose.position, hit.Pose.rotation);
+
+                        dandy.transform.localScale = new Vector3(objSize, objSize, objSize);
+
+                        // Compensate for the hitPose rotation facing away from the raycast (i.e. camera).
+                        dandy.transform.Rotate(0, k_ModelRotation, 0, Space.Self);
+
+                        // Make Andy model a child of the anchor.
+                        dandy.transform.parent = andyObject.transform;
+
+                    }
+
+
                 }
             }
         }
@@ -182,6 +218,49 @@ namespace GoogleARCore.Examples.HelloAR
             Application.Quit();
         }
 
+        private string levelName;
+        private float objSize;
+        public void GetName()
+        {
+            levelName = LevelName.text;
+            objSize = float.Parse(Size.text);
+
+            if (objSize == 0)
+                objSize = 0.25f;
+        }
+
+        string myString;
+        public void SaveLevel()
+        {
+            myString = "";
+            Target[] targets = FindObjectsOfType<Target>();
+
+            foreach (Target cObj in targets)
+            {
+                Target t = cObj;
+
+                if (t != null)
+                {
+                    t.myBlock = new TargetBlock(t);
+
+                    myString += t.myBlock.SaveLocalTOString();
+                    myString += "\n";
+                }
+            }
+
+            if (myString != "")
+                WriteDataToFile(myString);
+        }
+
+        public void WriteDataToFile(string jsonString)
+        {
+            string path = Application.persistentDataPath + "/Data/" + levelName + ".txt";
+            Debug.Log("AssetPath:" + path);
+            File.WriteAllText(path, jsonString);
+            #if UNITY_EDITOR
+                        UnityEditor.AssetDatabase.Refresh();
+            #endif
+        }
         /// <summary>
         /// Show an Android toast message.
         /// </summary>
